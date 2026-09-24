@@ -1,6 +1,6 @@
 # 0002 — Seed syntax defaults
 
-**Status:** PROPOSED · owner approval needed (QUESTIONS.md Q6–Q13, §74.1)
+**Status:** PROPOSED · owner approval needed (§74.1)
 **Date:** 2026-09-24
 
 ## Context

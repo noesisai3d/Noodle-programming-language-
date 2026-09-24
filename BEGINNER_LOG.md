@@ -7,6 +7,6 @@ Every observed confusion, and what changed because of it (§16).
 | Date | Source | Observation | Change |
 |---|---|---|---|
 | 2026-09-24 | heuristic | `make a is 5` is a very natural first line, but `a` was reserved | `a`/`an` made usable as names (DECISIONS/0004) |
-| 2026-09-24 | heuristic | `factorial n minus 1` reads as factorial(n−1) to a mathematician, and as factorial(n)−1 to the parser | now an error that shows both readings. **Watch this:** it may frustrate beginners, see Q12 |
+| 2026-09-24 | heuristic | `factorial n minus 1` reads as factorial(n−1) to a mathematician, and as factorial(n)−1 to the parser | now an error that shows both readings. **Watch this:** it may frustrate beginners, so the owner should decide whether to keep it |
 | 2026-09-24 | heuristic | `say you have money`: beginners will expect the value of `money` to be filled in | error that suggests `say "you have [money]"` |
 | 2026-09-24 | heuristic | `for each item in list`: people name things `item` and `list` | both stay usable as names |

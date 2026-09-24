@@ -1,6 +1,6 @@
 # 0001 — Bootstrap language: C99 (reversible default)
 
-**Status:** ACCEPTED AS A REVERSIBLE DEFAULT · owner decision pending (QUESTIONS.md Q1, §74.2)
+**Status:** ACCEPTED AS A REVERSIBLE DEFAULT · owner decision pending (§74.2)
 **Date:** 2026-09-24
 
 ## Context
@@ -18,5 +18,5 @@ C99 in one file, `bootstrap/seed.c`, using the standard library plus POSIX `dire
 
 ## Consequences
 - We must implement exact bignum fractions in C. That is about 150 lines, and the same algorithm will later be written in Noodle.
-- Test mode doesn't build with MSVC until the Noodle test runner exists (BOOTSTRAP_DEPENDENCIES.md #3).
+- Test mode doesn't build with MSVC until the Noodle test runner exists, because test mode uses POSIX `dirent.h`.
 - If the owner picks another language, the bootstrap is about 1,100 lines, and all tests are language-neutral `.noodle` + `.expected` files, so they carry over unchanged.
