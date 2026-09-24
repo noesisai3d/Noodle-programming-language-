@@ -1,0 +1,6 @@
+make money is 10
+if money is bigger than 50
+say "rich"
+otherwise
+say "not yet"
+end

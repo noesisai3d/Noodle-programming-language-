@@ -1,0 +1,7 @@
+# a fraction shows as a decimal when it ends; otherwise as a fraction
+say 1 divided by 5
+say 3 divided by 25
+say 1 divided by 40
+say 1 divided by 6
+say 22 divided by 7
+say 100 divided by 4

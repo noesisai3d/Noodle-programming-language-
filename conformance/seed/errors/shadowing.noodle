@@ -1,0 +1,4 @@
+make price is 10
+teach cheaper price
+    give back price minus 1
+end

@@ -1,0 +1,4 @@
+teach greet person
+    say "Hello, [person]!"
+end
+make x is greet "Mo"

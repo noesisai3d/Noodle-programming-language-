@@ -1,0 +1,8 @@
+Hello, Mo!
+Line 4:
+greet doesn't give back anything, so there is no value to use here.
+
+You wrote:
+make x is greet "Mo"
+
+Add a give back line to greet, or use it on its own line with do.

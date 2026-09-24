@@ -1,0 +1,7 @@
+Line 2:
+I can't compare a number with some text.
+
+You wrote:
+if age is "5"
+
+Both sides of "is" need to be the same kind of value.

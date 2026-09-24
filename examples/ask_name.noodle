@@ -1,0 +1,3 @@
+# ask stores the reply in the name "answer"
+ask "What is your name?"
+say "Nice to meet you, [answer]!"

@@ -1,0 +1,8 @@
+Line 4:
+This line starts with the teaching greet.
+
+You wrote:
+greet "Mo"
+
+To use the teaching greet, start the line with do:
+do greet "Mo"

@@ -1,0 +1,2 @@
+ask "How old are you?"
+make age is the number in answer

@@ -1,0 +1,4 @@
+make age is 5
+if age is "5"
+    say "same"
+end

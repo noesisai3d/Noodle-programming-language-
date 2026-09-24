@@ -1,0 +1,9 @@
+# comparisons at the exact boundary
+say 5 is bigger than 5
+say 5 is smaller than 5
+say 5 is at least 5
+say 5 is at most 5
+say 6 is bigger than 5
+say 4 is smaller than 5
+say 1 divided by 3 is smaller than 0.34
+say -1 is smaller than 0

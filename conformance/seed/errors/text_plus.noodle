@@ -1,0 +1,2 @@
+make first_name is "Mo"
+say first_name plus " Salah"

@@ -1,0 +1,8 @@
+make big is 1
+repeat 100 times
+    make big is big times 2
+end
+say big
+say big minus big plus 1
+make huge is big times big
+say huge divided by big is big

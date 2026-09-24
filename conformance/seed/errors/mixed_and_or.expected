@@ -1,0 +1,7 @@
+Line 2:
+This line mixes "and" with "or", so it could mean two different things.
+
+You wrote:
+say a is 1 and a is 2 or a is 3
+
+Split the line in two. Give the "and" part its own name first, then use that name with "or".

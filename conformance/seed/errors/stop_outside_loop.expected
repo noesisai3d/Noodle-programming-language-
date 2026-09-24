@@ -1,0 +1,5 @@
+Line 1:
+stop only works inside repeat or for each.
+
+You wrote:
+stop

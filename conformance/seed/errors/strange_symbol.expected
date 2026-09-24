@@ -1,0 +1,7 @@
+Line 1:
+I don't understand the symbol + here.
+
+You wrote:
+say 5 + 3
+
+Noodle understands words, numbers, and text in quotes. If you want to show this symbol, put it inside quotes.

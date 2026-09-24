@@ -1,0 +1,7 @@
+make total is 100
+teach add_tax price
+    make tax is price divided by 10
+    give back price plus tax
+end
+say add_tax total
+say total

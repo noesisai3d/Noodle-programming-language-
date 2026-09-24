@@ -1,0 +1,8 @@
+Line 2:
+I can't divide by zero.
+
+You wrote:
+say 10 divided by count
+
+Check the number before dividing, for example:
+if count is not 0

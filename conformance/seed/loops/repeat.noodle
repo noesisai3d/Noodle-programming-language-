@@ -1,0 +1,16 @@
+make count is 0
+repeat 3 times
+    make count is count plus 1
+end
+say count
+repeat while count is smaller than 6
+    make count is count plus 2
+end
+say count
+repeat until count is smaller than 0
+    make count is count minus 3
+end
+say count
+repeat 0 times
+    say "never"
+end

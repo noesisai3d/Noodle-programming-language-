@@ -1,0 +1,8 @@
+teach factorial n
+    if n is at most 1
+        give back 1
+    end
+    make smaller is n minus 1
+    give back n times factorial smaller
+end
+say factorial 25

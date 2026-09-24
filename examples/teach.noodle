@@ -1,0 +1,10 @@
+teach double number
+    give back number times 2
+end
+
+teach greet person
+    say "Hello, [person]!"
+end
+
+do greet "Mo"
+say double 21
