@@ -54,7 +54,9 @@ Numbers are exact, so `0.1 plus 0.2` is `0.3`, and `1 divided by 3` is `1/3`.
 
 **Early development. The core of the language runs, but the "world" features don't exist yet.**
 
-What works today is a small, temporary interpreter called the *bootstrap* (one C file, [`bootstrap/seed.c`](bootstrap/seed.c)). It runs the core of the language: `say`, `ask`, `make`, exact numbers, text, lists, `if`/`otherwise`, loops, and `teach` (reusable steps), with friendly error messages. 54 conformance tests and 7 examples pass.
+What works today is a small, temporary interpreter called the *bootstrap* (one C file, [`bootstrap/seed.c`](bootstrap/seed.c)). It runs the core of the language: `say`, `ask`, `make`, exact numbers, text, lists, `if`/`otherwise`, loops, `teach` (reusable steps), and reading and writing files, with friendly error messages. 66 conformance tests and 7 examples pass.
+
+The first tool written in Noodle itself also works: [`noodle/tools/purity.noodle`](noodle/tools/purity.noodle) audits the repository and reports how much of it is Noodle. Today's **Purity Score is 10.6%**. The rest is the temporary bootstrap, which is meant to shrink to nothing.
 
 What doesn't exist yet: the real Noodle compiler (which will be written in Noodle), history, `why`, checkpoints, rewind, replay, and anything installable. The first draft of the language specification was removed and is being rewritten, so the syntax shown here may still change.
 
@@ -92,7 +94,7 @@ The full plan has twelve gates. Each one counts as passed only when tests prove 
 | Gate | Goal | Status |
 |---|---|---|
 | G0 | Orientation: mission, spec draft, plan | 🟡 partly done (the spec draft is being rewritten) |
-| G1 | **Seed:** a tiny bootstrap runs the core language | 🟡 **in progress**: core runs; subset spec and first Noodle tool still to do |
+| G1 | **Seed:** a tiny bootstrap runs the core language | 🟡 **in progress**: core runs, and the first Noodle tool works; the subset spec still needs writing and approval |
 | G2 | Noodle reads Noodle: a parser written in Noodle | ⬜ not started |
 | G3 | Noodle runs Noodle: the World VM, with every run recorded | ⬜ not started |
 | G4 | Real programs: records, tables, files, tests in plain English | ⬜ not started |
@@ -110,6 +112,7 @@ The full plan has twelve gates. Each one counts as passed only when tests prove 
 MISSION.md        the full engineering plan
 STATUS.md         what works today, with evidence
 bootstrap/        the temporary C interpreter (retired later)
+noodle/           Noodle's own source, written in Noodle (so far: the purity tool)
 conformance/      test programs that define how Noodle behaves
 examples/         small example programs, each with its expected output
 DECISIONS/        records of design decisions and why they were made

@@ -1,0 +1,160 @@
+# noodle purity: the purity audit from MISSION.md section 4, written in Noodle Seed.
+#
+# Run it from anywhere:
+#     build/noodle-seed run noodle/tools/purity.noodle
+#
+# It walks the whole repository, puts every file into a class, counts logic
+# lines (lines that are not blank and not only a comment), and reports the
+# Purity Score and the size of the bootstrap against its cap.
+
+make root is "../.."
+make bootstrap_cap is 3000
+
+# Endings of files written in a language other than Noodle.
+make foreign_endings is a list of ".c", ".h", ".cc", ".cpp", ".py", ".js", ".ts", ".rs", ".go", ".java", ".rb", ".pl", ".sh", ".bat", ".ps1", ".lua", ".zig", ".ml", ".hs", ".cs", ".swift", ".kt", ".php", "Makefile", "CMakeLists.txt"
+
+# Folders whose .noodle files are tests or examples, not the product.
+make test_folders is a list of "conformance/", "examples/", "tests/"
+
+teach is_foreign path
+    for each ending in foreign_endings
+        if path ends with ending
+            give back yes
+        end
+    end
+    give back no
+end
+
+teach in_test_folder path
+    for each folder_name in test_folders
+        if path starts with folder_name
+            give back yes
+        end
+    end
+    give back no
+end
+
+# Is this word the start of a comment? C comments look different from Noodle's.
+teach comment_start word and in_c
+    if in_c
+        if word starts with "//" or word starts with "/*" or word starts with "*/" or word is "*"
+            give back yes
+        end
+        give back no
+    end
+    give back word starts with "#"
+end
+
+teach logic_lines path and in_c
+    make count is 0
+    for each line in the lines of file "[root]/[path]"
+        make words is the words of line
+        if length of words is bigger than 0
+            make first_word is first item of words
+            make only_comment is comment_start first_word and in_c
+            if only_comment is no
+                make count is count plus 1
+            end
+        end
+    end
+    give back count
+end
+
+make product_lines is 0
+make product_files is a new list
+make test_lines is 0
+make test_count is 0
+make bootstrap_lines is 0
+make bootstrap_physical is 0
+make shim_files is a new list
+make violations is a new list
+make foreign_lines is 0
+make prose_count is 0
+make data_count is 0
+make config_count is 0
+make other_files is a new list
+
+for each file_path in the files in folder root
+    if file_path starts with ".git/" or file_path starts with "build/"
+        skip
+    end
+    make c_like is file_path ends with ".c" or file_path ends with ".h"
+    if file_path ends with ".noodle"
+        make counted is logic_lines file_path and no
+        if in_test_folder file_path
+            make test_lines is test_lines plus counted
+            make test_count is test_count plus 1
+        otherwise
+            make product_lines is product_lines plus counted
+            add file_path to product_files
+        end
+    otherwise if file_path starts with "bootstrap/"
+        make counted is logic_lines file_path and c_like
+        make bootstrap_lines is bootstrap_lines plus counted
+        make bootstrap_physical is bootstrap_physical plus length of the lines of file "[root]/[file_path]"
+    otherwise if file_path starts with "shims/"
+        add file_path to shim_files
+    otherwise if is_foreign file_path
+        add file_path to violations
+        make counted is logic_lines file_path and c_like
+        make foreign_lines is foreign_lines plus counted
+    otherwise if file_path ends with ".md" or file_path is "LICENSE"
+        make prose_count is prose_count plus 1
+    otherwise if in_test_folder file_path
+        make data_count is data_count plus 1
+    otherwise if file_path is ".gitignore"
+        make config_count is config_count plus 1
+    otherwise
+        add file_path to other_files
+    end
+end
+
+make all_lines is product_lines plus bootstrap_lines plus foreign_lines
+make ratio is 0
+if all_lines is bigger than 0
+    make ratio is product_lines times 1000 divided by all_lines
+end
+make tenths is whole part of ratio
+
+say "Noodle purity audit"
+say ""
+say "Purity Score: [tenths divided by 10]% (rounded down)"
+say "  Noodle logic lines in the product: [product_lines]"
+for each name in product_files
+    say "    [name]"
+end
+say "  Other-language logic lines: [bootstrap_lines plus foreign_lines]"
+say ""
+say "Bootstrap: [bootstrap_physical] of [bootstrap_cap] lines ([bootstrap_lines] logic lines)"
+if length of shim_files is 0
+    say "Host shims: none"
+otherwise
+    say "Host shims: [shim_files]"
+end
+if length of violations is 0
+    say "Other-language code outside bootstrap/ and shims/: none"
+otherwise
+    say "Other-language code outside bootstrap/ and shims/:"
+    for each name in violations
+        say "    [name]"
+    end
+end
+say ""
+say "Not counted in the score:"
+say "  Noodle tests and examples: [test_lines] logic lines in [test_count] files"
+say "  Prose: [prose_count] files. Test data: [data_count] files. Git settings: [config_count] files."
+if length of other_files is 0
+    say "  Files I could not classify: none"
+otherwise
+    say "  Files I could not classify:"
+    for each name in other_files
+        say "    [name]"
+    end
+end
+say ""
+make over_cap is bootstrap_physical is bigger than bootstrap_cap
+if length of violations is 0 and over_cap is no
+    say "Result: PASS"
+otherwise
+    say "Result: FAIL"
+end
