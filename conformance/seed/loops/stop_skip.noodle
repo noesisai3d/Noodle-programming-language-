@@ -1,0 +1,17 @@
+for each n from 1 to 10
+    if n is 3
+        skip
+    end
+    if n is 6
+        stop
+    end
+    say n
+end
+make i is 0
+repeat while yes
+    make i is i plus 1
+    if i is 4
+        stop
+    end
+end
+say i

@@ -1,0 +1,9 @@
+make shopping is a new list
+add "milk" to shopping
+add "eggs" to shopping
+add "bread" to shopping
+
+say "I need [length of shopping] things:"
+for each thing in shopping
+    say "- [thing]"
+end

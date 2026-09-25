@@ -1,0 +1,6 @@
+# Numbers in Noodle are exact.
+say 0.1 plus 0.2
+say 10 divided by 4
+say 1 divided by 3
+say 2 times 3 plus 4
+say remainder of 17 divided by 5

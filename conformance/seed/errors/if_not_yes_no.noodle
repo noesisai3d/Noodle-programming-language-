@@ -1,0 +1,4 @@
+make count is 0
+if count
+    say "never"
+end

@@ -1,0 +1,10 @@
+teach first_big numbers
+    for each n in numbers
+        if n is bigger than 10
+            give back n
+        end
+    end
+    give back 0
+end
+say first_big a list of 3, 12, 50
+say first_big a list of 1, 2

@@ -1,0 +1,5 @@
+say area 3 and 4
+teach area width and height
+    give back width times height
+end
+say area 2 and area 1 and 5

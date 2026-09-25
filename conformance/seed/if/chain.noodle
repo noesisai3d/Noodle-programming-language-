@@ -1,0 +1,11 @@
+for each n from 1 to 4
+    if n is 1
+        say "one"
+    otherwise if n is 2
+        say "two"
+    otherwise if n is 3
+        say "three"
+    otherwise
+        say "many"
+    end
+end

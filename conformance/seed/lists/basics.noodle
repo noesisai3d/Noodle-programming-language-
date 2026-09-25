@@ -1,0 +1,9 @@
+make scores is a list of 10, 20, 30
+say length of scores
+say item 2 of scores
+say first item of scores
+say last item of scores
+say scores contains 20
+say scores contains 25
+make i is 1
+say item i plus 2 of scores

@@ -1,0 +1,8 @@
+Line 2:
+"plus" works with numbers, but the left side is some text.
+
+You wrote:
+say first_name plus " Salah"
+
+To put text together, use [ ] inside quotes, for example:
+say "[first_name] [last_name]"

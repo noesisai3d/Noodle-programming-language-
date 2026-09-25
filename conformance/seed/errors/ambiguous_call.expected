@@ -1,0 +1,11 @@
+Line 4:
+This line could mean two different things.
+
+You wrote:
+say double 4 plus 1
+
+It could mean: double 4, and then plus 1.
+Or it could mean: double the result of 4 plus 1.
+Give the value its own name first, for example:
+make new_value is 4 plus 1
+then use: double new_value

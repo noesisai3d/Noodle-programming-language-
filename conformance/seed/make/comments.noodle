@@ -1,0 +1,4 @@
+# a whole-line comment
+make x is 1   # a comment after code
+say "# inside text is not a comment"
+say x

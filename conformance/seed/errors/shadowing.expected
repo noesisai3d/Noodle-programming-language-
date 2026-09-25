@@ -1,0 +1,7 @@
+Line 2:
+price is already a name for the whole program (line 1), so a teaching can't have its own price.
+
+You wrote:
+teach cheaper price
+
+Inside a teaching, pick a different name, or give back the new value instead.

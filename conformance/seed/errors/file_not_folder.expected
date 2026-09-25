@@ -1,0 +1,5 @@
+Line 1:
+../files/data/scores.txt is a file, not a folder.
+
+You wrote:
+say the files in folder "../files/data/scores.txt"

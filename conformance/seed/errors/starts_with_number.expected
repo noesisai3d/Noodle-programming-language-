@@ -1,0 +1,5 @@
+Line 1:
+starts with works with text, but the left side is a number.
+
+You wrote:
+say 123 starts with "1"

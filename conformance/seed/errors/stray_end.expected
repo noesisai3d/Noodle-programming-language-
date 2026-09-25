@@ -1,0 +1,7 @@
+Line 2:
+This "end" doesn't belong to anything.
+
+You wrote:
+end
+
+Check that every if, repeat, for each, and teach has exactly one end.

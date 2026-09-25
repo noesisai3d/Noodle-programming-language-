@@ -1,0 +1,7 @@
+make name is "Mo"
+make money is 25
+say "Hi [name], you have [money] coins"
+say "[money plus 5] next week"
+say "Brackets: [[ and ]]"
+say "She said ""yes"""
+say ""

@@ -1,0 +1,8 @@
+Line 2:
+if needs yes or no, but this is a number.
+
+You wrote:
+if count
+
+Compare it to something, for example:
+if count is 0

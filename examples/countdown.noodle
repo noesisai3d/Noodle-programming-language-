@@ -1,0 +1,4 @@
+for each seconds from 5 to 1
+    say seconds
+end
+say "Lift off!"

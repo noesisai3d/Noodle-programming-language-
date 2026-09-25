@@ -1,0 +1,9 @@
+say hello
+
+make money is 100
+
+if money is bigger than 50
+    say "You have enough"
+otherwise
+    say "You need more"
+end

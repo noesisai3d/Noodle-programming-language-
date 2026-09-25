@@ -1,0 +1,4 @@
+teach double number
+    give back number times 2
+end
+say double 4 plus 1

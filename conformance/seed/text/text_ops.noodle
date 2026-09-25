@@ -1,0 +1,12 @@
+make word is "noodle"
+say length of word
+say item 1 of word
+say first item of word
+say last item of word
+say word contains "odl"
+say word contains "x"
+say word is "noodle"
+say word is not "pasta"
+for each letter in "abc"
+    say letter
+end

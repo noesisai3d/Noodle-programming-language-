@@ -1,0 +1,8 @@
+Line 2:
+"mony" looks like the name money, so I'm not sure what you meant.
+
+You wrote:
+say mony
+
+Did you mean money? If you meant the word itself, put it in quotes:
+say "mony"

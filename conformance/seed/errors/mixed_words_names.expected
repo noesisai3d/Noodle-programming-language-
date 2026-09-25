@@ -1,0 +1,8 @@
+Line 2:
+I can't tell which words here are names and which are just words.
+
+You wrote:
+say you have money
+
+Put the words in quotes, and put names inside [ ], like this:
+say "you have [money]"

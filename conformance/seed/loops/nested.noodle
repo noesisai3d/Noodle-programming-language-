@@ -1,0 +1,5 @@
+for each row from 1 to 3
+    for each col from 1 to 2
+        say "[row],[col]"
+    end
+end
