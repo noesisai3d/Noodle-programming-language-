@@ -1,0 +1,5 @@
+Line 1:
+../files/data is a folder, not a file.
+
+You wrote:
+say the text of file "../files/data"

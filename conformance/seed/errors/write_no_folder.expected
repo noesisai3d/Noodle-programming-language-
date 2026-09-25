@@ -1,0 +1,7 @@
+Line 1:
+I couldn't write to the file no_such_folder/out.out.
+
+You wrote:
+write "hi" to file "no_such_folder/out.out"
+
+Check that the folder no_such_folder exists.

@@ -1,0 +1,4 @@
+write "first" to file "scratch.out"
+say the text of file "scratch.out"
+write "second [1 plus 1]" to file "scratch.out"
+say the text of file "scratch.out"

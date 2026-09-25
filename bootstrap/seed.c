@@ -349,10 +349,11 @@ static int tfind(const char *w) { for (int i = 0; i < nT; i++) if (!strcmp(T[i].
 static const char *reserved[] = {
     "say", "ask", "make", "is", "if", "otherwise", "end", "repeat", "times", "while", "until", "for", "each",
     "in", "from", "to", "add", "teach", "do", "give", "back", "and", "or", "not", "plus", "minus", "divided",
-    "by", "yes", "no", "the", "of", "stop", "skip", "than", "with", "contains", NULL};
+    "by", "yes", "no", "the", "of", "stop", "skip", "than", "with", "contains", "write", NULL};
 static const char *phrase_words[] = {
     "length", "item", "first", "last", "remainder", "whole", "part", "number", "bigger", "smaller", "at",
-    "least", "most", "list", "new", "a", "an", NULL};
+    "least", "most", "list", "new", "a", "an", "text", "lines", "files", "words", "arguments", "file",
+    "folder", "starts", "ends", NULL};
 static int in(const char **set, const char *w) { for (int i = 0; set[i]; i++) if (!strcmp(set[i], w)) return 1; return 0; }
 static int is_reserved(const char *w) { return in(reserved, w); }
 
@@ -381,10 +382,11 @@ static int dist(const char *a, const char *b) {
 
 enum {
     N_BLOCK = 1, N_SAY, N_MAKE, N_ADD, N_IF, N_TIMES, N_WHILE, N_UNTIL, N_EACH, N_RANGE, N_STOP, N_SKIP,
-    N_GIVE, N_DO, N_ASK,
-    E_LIT, E_VAR, E_CALL, E_LIST, E_TMPL, E_BIN, E_NOT, E_LEN, E_ITEM, E_FIRST, E_LAST, E_WHOLE, E_NUMIN
+    N_GIVE, N_DO, N_ASK, N_WRITE,
+    E_LIT, E_VAR, E_CALL, E_LIST, E_TMPL, E_BIN, E_NOT, E_LEN, E_ITEM, E_FIRST, E_LAST, E_WHOLE, E_NUMIN,
+    E_FTEXT, E_FLINES, E_FOLDER, E_WORDS, E_ARGS
 };
-enum { O_AND = 1, O_OR, O_PLUS, O_MINUS, O_TIMES, O_DIV, O_REM, O_EQ, O_NE, O_GT, O_LT, O_GE, O_LE, O_HAS };
+enum { O_AND = 1, O_OR, O_PLUS, O_MINUS, O_TIMES, O_DIV, O_REM, O_EQ, O_NE, O_GT, O_LT, O_GE, O_LE, O_HAS, O_STARTS, O_ENDS };
 struct Node { int k, line, op, loc, slot, t, n; const char *name; Node *a, *b, *c, **kid; Val *v; };
 
 /* ---------- parser ---------- */
@@ -550,6 +552,12 @@ static Node *unary(void) {
     }
     if (isw(tp, "whole") && isw(tp + 1, "part") && isw(tp + 2, "of")) { tp += 3; return pre(E_WHOLE, operand(st, tp)); }
     if (isw(tp, "the") && isw(tp + 1, "number") && isw(tp + 2, "in")) { tp += 3; return pre(E_NUMIN, operand(st, tp)); }
+    if (isw(tp, "the") && isw(tp + 2, "of") && isw(tp + 3, "file") && (isw(tp + 1, "text") || isw(tp + 1, "lines"))) {
+        int k = isw(tp + 1, "text") ? E_FTEXT : E_FLINES; tp += 4; return pre(k, operand(st, tp));
+    }
+    if (isw(tp, "the") && isw(tp + 1, "files") && isw(tp + 2, "in") && isw(tp + 3, "folder")) { tp += 4; return pre(E_FOLDER, operand(st, tp)); }
+    if (isw(tp, "the") && isw(tp + 1, "words") && isw(tp + 2, "of")) { tp += 3; return pre(E_WORDS, operand(st, tp)); }
+    if (isw(tp, "the") && isw(tp + 1, "arguments")) { tp += 2; return nn(E_ARGS); }
     if (at("the")) fail(cl, NULL, "I don't know what \"the %s\" means here.", tp + 1 < tn ? tk[tp + 1].raw : "");
     return primary();
 }
@@ -585,9 +593,10 @@ static Node *cmp(void) {
         else if (isw(tp, "at") && isw(tp + 1, "most")) { tp += 2; op = O_LE; }
         else op = O_EQ;
     } else if (acc("contains")) op = O_HAS;
+    else if ((isw(tp, "starts") || isw(tp, "ends")) && isw(tp + 1, "with")) { op = at("starts") ? O_STARTS : O_ENDS; tp += 2; }
     if (!op) return x;
     x = bin(op, x, add());
-    if (at("is") || at("contains")) fail(cl, "Split it into two comparisons joined by \"and\".", "I can only compare two things at a time.");
+    if (at("is") || at("contains") || ((at("starts") || at("ends")) && isw(tp + 1, "with"))) fail(cl, "Split it into two comparisons joined by \"and\".", "I can only compare two things at a time.");
     return x;
 }
 static Node *notx(void) { if (acc("not")) return pre(E_NOT, notx()); return cmp(); }
@@ -685,6 +694,10 @@ static Node *stmt(void) {
         need("is", fmt("after make %s", x->name)); x->a = expr();
     }
     else if (acc("add")) { x = nn(N_ADD); x->a = expr(); need("to", "after the thing to add"); set_target(x); }
+    else if (acc("write")) {
+        x = nn(N_WRITE); x->a = expr(); need("to", "after the thing to write");
+        need("file", "after \"write ... to\""); x->b = expr();
+    }
     else if (acc("ask")) { x = nn(N_ASK); x->a = expr(); x->slot = resolve("answer", &x->loc); x->name = "answer"; }
     else if (acc("if")) return if_rest(open);
     else if (acc("repeat")) {
@@ -730,7 +743,7 @@ static Node *stmt(void) {
         const char *w = tk[0].s;
         if (tfind(w) >= 0) fail(cl, fmt("To use the teaching %s, start the line with do:\ndo %s", w, lines[cl - 1].src), "This line starts with the teaching %s.", w);
         if (known(w)) fail(cl, fmt("To change it, use make:\nmake %s is ...", w), "This line starts with the name %s, but doesn't say what to do with it.", w);
-        static const char *starts[] = {"say", "ask", "make", "add", "if", "repeat", "for", "teach", "do", "give", "stop", "skip", NULL};
+        static const char *starts[] = {"say", "ask", "make", "add", "if", "repeat", "for", "teach", "do", "give", "stop", "skip", "write", NULL};
         const char *best = NULL; int bd = 3;
         for (int i = 0; starts[i]; i++) { int d = dist(w, starts[i]); if (d < bd) { bd = d; best = starts[i]; } }
         fail(cl, best ? fmt("Did you mean %s?", best) : "Lines start with a Noodle word, such as say, make, or if.",
@@ -813,6 +826,8 @@ static void set_slot(Node *x, Val *v) { Val **p = slot_of(x); unref(*p); *p = v;
 
 static Val *eval(Node *x);
 static int exec(Node *b);
+static char *read_file(const char *path, size_t *len);
+static char **split_lines(char *s, int *n);
 static Val *val(Node *x) {
     Val *v = eval(x);
     if (v->k == V_NOTHING)
@@ -868,6 +883,13 @@ static Val *binop(Node *x) {
         if (a->k != b->k)
             fail(x->line, "Both sides of \"is\" need to be the same kind of value.", "I can't compare %s with %s.", kname(a), kname(b));
         r = mkbool(equal(a, b) == (x->op == O_EQ));
+    } else if (x->op == O_STARTS || x->op == O_ENDS) {
+        if (a->k != V_TEXT || b->k != V_TEXT) {
+            Val *bad = a->k != V_TEXT ? a : b;
+            fail(x->line, NULL, "%s works with text, but %s is %s.", x->op == O_STARTS ? "starts with" : "ends with",
+                 bad == a ? "the left side" : "the right side", kname(bad));
+        }
+        r = mkbool(b->len <= a->len && !memcmp(x->op == O_STARTS ? a->s : a->s + a->len - b->len, b->s, b->len));
     } else if (x->op == O_HAS) {
         if (a->k == V_TEXT) {
             if (b->k != V_TEXT) fail(x->line, NULL, "Text can only contain other text, but this is %s.", kname(b));
@@ -927,6 +949,74 @@ static Val *number_in(Val *t, Node *x) {
     if (!ok || *p) fail(x->line, NULL, "\"%.*s\" isn't a number.", (int)t->len, t->s);
     Val *v = parse_num(s); free(s); return v;
 }
+/* ---------- files, folders, arguments ---------- */
+
+static char *base_dir;          /* relative paths start from the program's own folder */
+static char **prog_args;
+static int nprog_args;
+static int by_name(const void *a, const void *b);
+
+static char *where(Node *x, Node *p, char **shown) {
+    Val *v = val(p);
+    if (v->k != V_TEXT) fail(x->line, NULL, "A file or folder name must be text, but this is %s.", kname(v));
+    *shown = xdup(v->s, v->len); unref(v);
+    return (**shown == '/' || !base_dir) ? xdup(*shown, strlen(*shown)) : fmt("%s/%s", base_dir, *shown);
+}
+NORETURN static void no_such(Node *x, const char *shown, const char *full) {
+    const char *slash = strrchr(full, '/'), *sslash = strrchr(shown, '/'), *base = slash ? slash + 1 : full;
+    int len = (int)strlen(base), best_d = len >= 6 ? 3 : len >= 3 ? 2 : 0;
+    char *best = NULL, *dir = slash ? xdup(full, slash - full) : xdup(".", 1);
+    DIR *d = opendir(dir); struct dirent *e;
+    while (d && (e = readdir(d))) {
+        int dd = dist(base, e->d_name);
+        if (dd > 0 && dd < best_d) { best_d = dd; best = xdup(e->d_name, strlen(e->d_name)); }
+    }
+    if (d) closedir(d);
+    fail(x->line, best ? fmt("Did you mean %.*s%s?", sslash ? (int)(sslash - shown + 1) : 0, shown, best) : NULL,
+         "I can't find the file %s.", shown);
+}
+static char *load(Node *x, size_t *len) {
+    char *shown, *full = where(x, x->a, &shown), *s; struct stat st;
+    if (stat(full, &st)) no_such(x, shown, full);
+    if (S_ISDIR(st.st_mode)) fail(x->line, NULL, "%s is a folder, not a file.", shown);
+    if (!(s = read_file(full, len))) fail(x->line, NULL, "I couldn't read the file %s.", shown);
+    if (*len >= 3 && !memcmp(s, "\xEF\xBB\xBF", 3)) { memmove(s, s + 3, *len - 2); *len -= 3; }
+    return s;
+}
+static void walk(const char *full, const char *rel, char ***v, int *n) {
+    DIR *d = opendir(full); struct dirent *e;
+    while (d && (e = readdir(d))) {
+        if (!strcmp(e->d_name, ".") || !strcmp(e->d_name, "..")) continue;
+        char *f = fmt("%s/%s", full, e->d_name), *r = *rel ? fmt("%s/%s", rel, e->d_name) : xdup(e->d_name, strlen(e->d_name));
+        struct stat st;
+        if (!lstat(f, &st) && S_ISDIR(st.st_mode)) walk(f, r, v, n);
+        else { *v = xgrow(*v, sizeof(char *) * (*n + 1)); (*v)[(*n)++] = r; }
+    }
+    if (d) closedir(d);
+}
+static Val *folder_files(Node *x) {
+    char *shown, *full = where(x, x->a, &shown), **v = NULL; int n = 0; struct stat st;
+    if (stat(full, &st)) fail(x->line, NULL, "I can't find the folder %s.", shown);
+    if (!S_ISDIR(st.st_mode)) fail(x->line, NULL, "%s is a file, not a folder.", shown);
+    walk(full, "", &v, &n);
+    if (n) qsort(v, n, sizeof(char *), by_name);
+    Val *r = mklist();
+    for (int i = 0; i < n; i++) list_push(r, mktext(v[i], strlen(v[i])));
+    return r;
+}
+static Val *words_of(Val *t, Node *x) {
+    if (t->k != V_TEXT) fail(x->line, NULL, "the words of needs some text, but this is %s.", kname(t));
+    Val *r = mklist();
+    for (size_t i = 0; i < t->len;) {
+        while (i < t->len && strchr(" \t\r\n", t->s[i])) i++;
+        size_t j = i;
+        while (j < t->len && !strchr(" \t\r\n", t->s[j])) j++;
+        if (j > i) list_push(r, mktext(t->s + i, j - i));
+        i = j;
+    }
+    return r;
+}
+
 static Val *eval(Node *x) {
     Val *a, *r;
     switch (x->k) {
@@ -955,6 +1045,15 @@ static Val *eval(Node *x) {
     case E_LAST: a = val(x->a); r = item_of(a, a->k == V_LIST ? (long long)a->n : (long long)a->len, x); unref(a); return r;
     case E_WHOLE: a = num_of(x->a, "whole part of"); r = num_trunc(a); unref(a); return r;
     case E_NUMIN: a = val(x->a); r = number_in(a, x); unref(a); return r;
+    case E_FTEXT: { size_t n; char *s = load(x, &n); r = mktext(s, n); free(s); return r; }
+    case E_FLINES: {
+        size_t n; int k; char *s = load(x, &n), **v = split_lines(s, &k); r = mklist();
+        for (int i = 0; i < k; i++) { list_push(r, mktext(v[i], strlen(v[i]))); free(v[i]); }
+        free(v); free(s); return r;
+    }
+    case E_FOLDER: return folder_files(x);
+    case E_WORDS: a = val(x->a); r = words_of(a, x); unref(a); return r;
+    case E_ARGS: r = mklist(); for (int i = 0; i < nprog_args; i++) list_push(r, mktext(prog_args[i], strlen(prog_args[i]))); return r;
     }
     fail(x->line, "Sorry, this is a bug in the Noodle bootstrap. Please report it with your program.", "Something went wrong inside Noodle.");
     return NULL;
@@ -1030,6 +1129,14 @@ static int step(Node *s) {
     case N_SKIP: return SKIP;
     case N_GIVE: ret_val = val(s->a); return GIVE;
     case N_DO: unref(eval(s->a)); return GO;
+    case N_WRITE: {
+        v = val(s->a); Buf b = {0}; bput(&b, "", 0); show(v, &b); unref(v);
+        char *shown, *full = where(s, s->b, &shown), *sl = strrchr(shown, '/');
+        FILE *f = fopen(full, "wb");
+        if (!f) fail(s->line, sl ? fmt("Check that the folder %.*s exists.", (int)(sl - shown), shown) : NULL, "I couldn't write to the file %s.", shown);
+        if (fwrite(b.s, 1, b.n, f) != b.n || fclose(f)) fail(s->line, NULL, "I couldn't finish writing the file %s.", shown);
+        free(b.s); return GO;
+    }
     }
     return GO;
 }
@@ -1062,6 +1169,8 @@ static int run_file(const char *path) {
     lines = NULL; nlines = 0; T = NULL; nT = 0; memset(&G, 0, sizeof G);
     cur_t = -1; loops = 0; fr = NULL; depth = 0; ret_val = NULL;
     if (setjmp(on_error)) return 1;
+    const char *sl = strrchr(path, '/');
+    base_dir = sl ? xdup(path, sl - path) : NULL;
     char *src = read_file(path, NULL);
     if (!src) fail(0, "Check the file's name and folder.", "I can't find the file %s.", path);
     char **raw = split_lines(src, &nlines);
@@ -1126,10 +1235,10 @@ static int run_tests(const char *dir) {
 int main(int argc, char **argv) {
     int r = 2;
     YES.rc = NO.rc = NOTHING.rc = 1 << 30; YES.k = NO.k = V_BOOL; NOTHING.k = V_NOTHING;
-    if (argc == 3 && !strcmp(argv[1], "run")) r = run_file(argv[2]);
+    if (argc >= 3 && !strcmp(argv[1], "run")) { prog_args = argv + 3; nprog_args = argc - 3; r = run_file(argv[2]); }
     else if (argc == 3 && !strcmp(argv[1], "test")) r = run_tests(argv[2]);
     else fputs("Noodle Seed bootstrap (temporary, see BOOTSTRAP.md)\n\n"
-               "  noodle-seed run program.noodle   run a Noodle Seed program\n"
+               "  noodle-seed run program.noodle [arguments]   run a Noodle Seed program\n"
                "  noodle-seed test folder           run every .noodle file in a folder and\n"
                "                                    compare its output with its .expected file\n", stderr);
     fflush(stdout);

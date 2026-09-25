@@ -1,0 +1,7 @@
+Line 1:
+I can't find the file ../files/data/scors.txt.
+
+You wrote:
+say the text of file "../files/data/scors.txt"
+
+Did you mean ../files/data/scores.txt?

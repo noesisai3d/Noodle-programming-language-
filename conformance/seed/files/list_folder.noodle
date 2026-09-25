@@ -1,0 +1,4 @@
+# every file under the folder, sorted, as paths inside that folder
+for each name in the files in folder "data/notes"
+    say name
+end

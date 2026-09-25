@@ -1,0 +1,6 @@
+make name is "report.noodle"
+say name ends with ".noodle"
+say name ends with ".txt"
+say name starts with "rep"
+say name starts with "port"
+say name starts with ""

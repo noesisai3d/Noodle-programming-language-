@@ -1,0 +1,6 @@
+make total is 0
+for each line in the lines of file "data/scores.txt"
+    make total is total plus the number in line
+end
+say total
+say length of the lines of file "data/scores.txt"
